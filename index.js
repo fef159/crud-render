@@ -1,8 +1,12 @@
 const express = require("express");
 const { Pool } = require("pg");
+const path = require("path");
 
 const app = express();
 app.use(express.json());
+
+// 👇 SERVIR HTML
+app.use(express.static(path.join(__dirname, "public")));
 
 const PORT = process.env.PORT || 3000;
 
@@ -12,7 +16,7 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false }
 });
 
-// 🔹 Crear tabla automáticamente si no existe
+// Crear tabla automáticamente
 pool.query(`
   CREATE TABLE IF NOT EXISTS usuarios (
     id SERIAL PRIMARY KEY,
@@ -21,12 +25,6 @@ pool.query(`
 `)
 .then(() => console.log("Tabla usuarios lista"))
 .catch(err => console.error("Error creando tabla:", err));
-
-
-// Ruta de prueba
-app.get("/", (req, res) => {
-  res.send("API CRUD Usuarios funcionando 🚀");
-});
 
 
 // 🔹 CREAR usuario
@@ -89,6 +87,7 @@ app.delete("/usuarios/:id", async (req, res) => {
 });
 
 
+// 🚀 INICIAR SERVIDOR
 app.listen(PORT, () => {
   console.log('Servidor corriendo en puerto ${PORT}');
 });
