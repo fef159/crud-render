@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Usuarios</title>
+</head>
+<body>
+
+<h1>CRUD Usuarios</h1>
+
+<input id="nombre" placeholder="Nombre">
+<button onclick="crear()">Agregar</button>
+
+<ul id="lista"></ul>
+
+<script>
+async function cargar() {
+  const res = await fetch("/usuarios");
+  const data = await res.json();
+
+  const lista = document.getElementById("lista");
+  lista.innerHTML = "";
+
+  data.forEach(u => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      ${u.nombre}
+      <button onclick="eliminar(${u.id})">❌</button>
+    `;
+    lista.appendChild(li);
+  });
+}
+
+async function crear() {
+  const nombre = document.getElementById("nombre").value;
+
+  await fetch("/usuarios", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ nombre })
+  });
+
+  cargar();
+}
+
+async function eliminar(id) {
+  await fetch("/usuarios/" + id, { method: "DELETE" });
+  cargar();
+}
+
+cargar();
+</script>
+
+</body>
+</html>
