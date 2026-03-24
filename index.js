@@ -5,12 +5,12 @@ const path = require("path");
 const app = express();
 app.use(express.json());
 
-// 🔥 SERVIR ARCHIVOS HTML
-app.use(express.static(path.join(__dirname, "public")));
+// 🔥 SOLUCIÓN REAL
+const publicPath = path.join(__dirname, "public");
+app.use(express.static(publicPath));
 
-// 🔥 FORZAR QUE "/" ABRA index.html
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+  res.sendFile(path.join(publicPath, "index.html"));
 });
 
 const PORT = process.env.PORT || 3000;
