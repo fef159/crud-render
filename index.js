@@ -89,5 +89,5 @@ app.delete("/usuarios/:id", async (req, res) => {
 
 // 🚀 INICIAR SERVIDOR
 app.listen(PORT, () => {
-  console.log('Servidor corriendo en puerto ${PORT}');
+  console.log(`Servidor corriendo en puerto ${PORT}`);
 });

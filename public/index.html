@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Usuarios</title>
+  <title>CRUD Usuarios</title>
 </head>
 <body>
 
@@ -39,6 +39,7 @@ async function crear() {
     body: JSON.stringify({ nombre })
   });
 
+  document.getElementById("nombre").value = "";
   cargar();
 }
 
