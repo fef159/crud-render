@@ -1,597 +1,363 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CRUD Usuarios</title>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <title>Usuarios</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #0a0a0f;
-      --surface: #13131a;
-      --surface2: #1c1c28;
-      --border: #2a2a3d;
-      --accent: #7c6dfa;
-      --accent2: #fa6d9a;
-      --text: #e8e8f0;
-      --muted: #6b6b85;
-      --success: #6dfaaa;
-      --danger: #fa6d6d;
-      --warning: #facc6d;
+      --bg: #f5f5f0;
+      --white: #ffffff;
+      --border: #ddddd8;
+      --text: #1a1a1a;
+      --muted: #888884;
+      --danger: #c0392b;
+      --warning: #d4860a;
     }
 
     body {
-      font-family: 'Syne', sans-serif;
+      font-family: 'IBM Plex Sans', sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
-      overflow-x: hidden;
-    }
-
-    /* Background grid */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image:
-        linear-gradient(var(--border) 1px, transparent 1px),
-        linear-gradient(90deg, var(--border) 1px, transparent 1px);
-      background-size: 48px 48px;
-      opacity: 0.3;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    /* Glow orbs */
-    body::after {
-      content: '';
-      position: fixed;
-      top: -200px; left: -200px;
-      width: 600px; height: 600px;
-      background: radial-gradient(circle, rgba(124,109,250,0.12) 0%, transparent 70%);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .glow-right {
-      position: fixed;
-      bottom: -150px; right: -150px;
-      width: 500px; height: 500px;
-      background: radial-gradient(circle, rgba(250,109,154,0.1) 0%, transparent 70%);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .container {
-      position: relative;
-      z-index: 1;
-      max-width: 900px;
-      margin: 0 auto;
       padding: 48px 24px;
     }
 
-    /* Header */
+    .wrap { max-width: 680px; margin: 0 auto; }
+
     header {
-      margin-bottom: 52px;
-      animation: fadeDown 0.6s ease both;
+      margin-bottom: 40px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
     }
 
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-family: 'DM Mono', monospace;
+    h1 { font-size: 22px; font-weight: 500; letter-spacing: -0.02em; }
+
+    .sub {
+      font-family: 'IBM Plex Mono', monospace;
       font-size: 11px;
-      color: var(--accent);
-      border: 1px solid rgba(124,109,250,0.3);
-      background: rgba(124,109,250,0.08);
-      padding: 4px 12px;
-      border-radius: 999px;
-      margin-bottom: 16px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-
-    .badge::before {
-      content: '';
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: var(--accent);
-      animation: pulse 2s ease infinite;
-    }
-
-    h1 {
-      font-size: clamp(2rem, 5vw, 3.2rem);
-      font-weight: 800;
-      line-height: 1.1;
-      letter-spacing: -0.03em;
-    }
-
-    h1 span {
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .subtitle {
-      margin-top: 10px;
       color: var(--muted);
-      font-size: 14px;
-      font-family: 'DM Mono', monospace;
+      margin-top: 4px;
     }
 
-    /* Card */
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 28px;
-      margin-bottom: 24px;
-      animation: fadeUp 0.5s ease both;
-      transition: border-color 0.2s;
+    .section { margin-bottom: 32px; }
+
+    .section-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin-bottom: 10px;
     }
 
-    .card:hover { border-color: rgba(124,109,250,0.3); }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; }
 
-    .card-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-
-    .card-icon {
-      width: 36px; height: 36px;
-      border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 16px;
-    }
-
-    .card-icon.purple { background: rgba(124,109,250,0.15); }
-    .card-icon.pink   { background: rgba(250,109,154,0.15); }
-    .card-icon.green  { background: rgba(109,250,170,0.15); }
-    .card-icon.red    { background: rgba(250,109,109,0.15); }
-
-    .card-title {
-      font-size: 15px;
-      font-weight: 600;
-      letter-spacing: -0.01em;
-    }
-
-    /* Form elements */
-    .form-row {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    input[type="text"],
-    input[type="number"] {
+    input {
       flex: 1;
-      min-width: 140px;
-      background: var(--surface2);
+      min-width: 120px;
+      background: var(--white);
       border: 1px solid var(--border);
-      border-radius: 10px;
+      border-radius: 6px;
       color: var(--text);
-      font-family: 'DM Mono', monospace;
+      font-family: 'IBM Plex Mono', monospace;
       font-size: 13px;
-      padding: 10px 14px;
+      padding: 8px 12px;
       outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      transition: border-color 0.15s;
     }
 
-    input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(124,109,250,0.12);
-    }
-
+    input:focus { border-color: var(--text); }
     input::placeholder { color: var(--muted); }
+    input[type="number"] { max-width: 90px; flex: none; }
 
-    /* Buttons */
     .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 20px;
-      border-radius: 10px;
-      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      border: 1px solid transparent;
       cursor: pointer;
-      font-family: 'Syne', sans-serif;
-      font-size: 13px;
-      font-weight: 600;
-      transition: all 0.15s ease;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      transition: opacity 0.15s;
       white-space: nowrap;
     }
 
-    .btn:active { transform: scale(0.97); }
+    .btn:hover  { opacity: 0.75; }
+    .btn:active { opacity: 0.5; }
 
-    .btn-primary {
-      background: linear-gradient(135deg, var(--accent), #5b4fd4);
-      color: #fff;
-      box-shadow: 0 4px 16px rgba(124,109,250,0.3);
-    }
-    .btn-primary:hover { box-shadow: 0 6px 20px rgba(124,109,250,0.45); transform: translateY(-1px); }
+    .btn-dark   { background: var(--text);    color: #fff; }
+    .btn-warn   { background: var(--warning); color: #fff; }
+    .btn-danger { background: var(--danger);  color: #fff; }
+    .btn-ghost  { background: transparent; color: var(--muted); border-color: var(--border); }
+    .btn-ghost:hover { color: var(--text); border-color: var(--text); opacity: 1; }
+    .btn-xs { padding: 4px 10px; font-size: 11px; border-radius: 4px; }
 
-    .btn-success {
-      background: linear-gradient(135deg, #3db87a, #2a9460);
-      color: #fff;
-      box-shadow: 0 4px 16px rgba(109,250,170,0.2);
-    }
-    .btn-success:hover { transform: translateY(-1px); }
-
-    .btn-warning {
-      background: linear-gradient(135deg, #c49a20, #a07a10);
-      color: #fff;
-    }
-    .btn-warning:hover { transform: translateY(-1px); }
-
-    .btn-danger {
-      background: linear-gradient(135deg, #c43a3a, #9a2020);
-      color: #fff;
-    }
-    .btn-danger:hover { transform: translateY(-1px); }
-
-    .btn-ghost {
-      background: var(--surface2);
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-    .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
-
-    /* Toast */
-    #toast {
-      position: fixed;
-      bottom: 28px; right: 28px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 14px 20px;
-      font-size: 13px;
-      font-family: 'DM Mono', monospace;
-      display: flex; align-items: center; gap: 10px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-      transform: translateY(100px);
-      opacity: 0;
-      transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
-      z-index: 999;
-      max-width: 320px;
-    }
-
-    #toast.show { transform: translateY(0); opacity: 1; }
-    #toast.success { border-color: rgba(109,250,170,0.4); }
-    #toast.error   { border-color: rgba(250,109,109,0.4); }
-
-    /* Table */
-    .table-wrap {
-      overflow-x: auto;
-      border-radius: 10px;
-      border: 1px solid var(--border);
+    .table-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
       font-size: 13px;
-    }
-
-    thead tr {
-      background: var(--surface2);
-      border-bottom: 1px solid var(--border);
     }
 
     th {
-      padding: 12px 16px;
+      padding: 10px 14px;
       text-align: left;
-      font-family: 'DM Mono', monospace;
-      font-size: 11px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
       text-transform: uppercase;
       letter-spacing: 0.08em;
       color: var(--muted);
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
     }
 
     td {
-      padding: 12px 16px;
-      border-bottom: 1px solid rgba(42,42,61,0.5);
-      font-family: 'DM Mono', monospace;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      font-family: 'IBM Plex Mono', monospace;
     }
 
     tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: #fafaf6; }
 
-    tbody tr {
-      transition: background 0.15s;
-    }
-    tbody tr:hover { background: rgba(124,109,250,0.04); }
+    .id-col { color: var(--muted); font-size: 12px; }
+    .act { display: flex; gap: 6px; }
 
-    .id-badge {
-      display: inline-block;
-      background: rgba(124,109,250,0.12);
-      color: var(--accent);
-      border-radius: 6px;
-      padding: 2px 8px;
-      font-size: 11px;
-    }
-
-    .actions { display: flex; gap: 8px; }
-
-    .btn-sm {
-      padding: 5px 12px;
-      font-size: 12px;
-      border-radius: 7px;
-    }
-
-    .empty-state {
+    .empty {
       text-align: center;
-      padding: 40px;
+      padding: 32px;
       color: var(--muted);
-      font-family: 'DM Mono', monospace;
-      font-size: 13px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
     }
 
-    .empty-state span { font-size: 28px; display: block; margin-bottom: 10px; }
-
-    /* Stat bar */
     .stats {
       display: flex;
-      gap: 16px;
-      margin-bottom: 24px;
-      flex-wrap: wrap;
-      animation: fadeUp 0.4s ease both;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 32px;
     }
 
-    .stat {
-      flex: 1;
-      min-width: 120px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 16px 20px;
-    }
+    .stat { flex: 1; background: var(--white); padding: 14px 18px; }
 
     .stat-label {
-      font-size: 11px;
-      color: var(--muted);
-      font-family: 'DM Mono', monospace;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      margin-bottom: 6px;
+      color: var(--muted);
+      margin-bottom: 4px;
     }
 
-    .stat-value {
-      font-size: 24px;
-      font-weight: 800;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+    .stat-val {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 20px;
+      font-weight: 500;
     }
 
-    /* Animations */
-    @keyframes fadeDown {
-      from { opacity: 0; transform: translateY(-20px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
+    hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+
+    #toast {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      background: var(--text);
+      color: #fff;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      padding: 10px 16px;
+      border-radius: 6px;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: all 0.2s ease;
+      pointer-events: none;
+      z-index: 99;
     }
 
-    .card:nth-child(1) { animation-delay: 0.1s; }
-    .card:nth-child(2) { animation-delay: 0.2s; }
-    .card:nth-child(3) { animation-delay: 0.3s; }
-    .card:nth-child(4) { animation-delay: 0.4s; }
-
-    @media (max-width: 600px) {
-      .form-row { flex-direction: column; }
-      .actions { flex-wrap: wrap; }
-    }
+    #toast.show { opacity: 1; transform: translateY(0); }
+    #toast.err  { background: var(--danger); }
   </style>
 </head>
 <body>
-<div class="glow-right"></div>
+<div class="wrap">
 
-<div class="container">
-  <!-- Header -->
   <header>
-    <div class="badge">PostgreSQL · Express · Node.js</div>
-    <h1>Gestión de <span>Usuarios</span></h1>
-    <p class="subtitle">// CRUD completo en tiempo real</p>
+    <h1>Usuarios</h1>
+    <p class="sub">crud · postgresql · express</p>
   </header>
 
-  <!-- Stats -->
   <div class="stats">
     <div class="stat">
-      <div class="stat-label">Total usuarios</div>
-      <div class="stat-value" id="totalUsuarios">0</div>
+      <div class="stat-label">Total</div>
+      <div class="stat-val" id="statTotal">0</div>
     </div>
     <div class="stat">
       <div class="stat-label">Último ID</div>
-      <div class="stat-value" id="lastId">—</div>
+      <div class="stat-val" id="statId">—</div>
     </div>
     <div class="stat">
-      <div class="stat-label">Estado API</div>
-      <div class="stat-value" id="apiStatus" style="font-size:14px;margin-top:4px;">⏳</div>
+      <div class="stat-label">API</div>
+      <div class="stat-val" id="statApi" style="font-size:13px;padding-top:4px">—</div>
     </div>
   </div>
 
-  <!-- CREAR -->
-  <div class="card">
-    <div class="card-header">
-      <div class="card-icon purple">➕</div>
-      <span class="card-title">Crear usuario</span>
-    </div>
-    <div class="form-row">
-      <input type="text" id="crearNombre" placeholder="Nombre del usuario..."/>
-      <button class="btn btn-primary" onclick="crearUsuario()">Crear</button>
+  <!-- Crear -->
+  <div class="section">
+    <div class="section-label">Crear</div>
+    <div class="row">
+      <input type="text" id="crearNombre" placeholder="nombre del usuario"/>
+      <button class="btn btn-dark" onclick="crearUsuario()">+ crear</button>
     </div>
   </div>
 
-  <!-- LEER -->
-  <div class="card">
-    <div class="card-header">
-      <div class="card-icon green">📋</div>
-      <span class="card-title">Lista de usuarios</span>
-      <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="leerUsuarios()">↻ Actualizar</button>
+  <hr/>
+
+  <!-- Lista -->
+  <div class="section">
+    <div class="table-head">
+      <div class="section-label" style="margin:0">Lista</div>
+      <button class="btn btn-ghost btn-xs" onclick="leerUsuarios()">↻ actualizar</button>
     </div>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody id="tablaUsuarios">
-          <tr><td colspan="3"><div class="empty-state"><span>👤</span>Sin usuarios aún</div></td></tr>
-        </tbody>
-      </table>
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Nombre</th><th>Acciones</th></tr>
+      </thead>
+      <tbody id="tabla">
+        <tr><td colspan="3"><div class="empty">sin usuarios</div></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <hr/>
+
+  <!-- Actualizar -->
+  <div class="section">
+    <div class="section-label">Actualizar</div>
+    <div class="row">
+      <input type="number" id="updId" placeholder="ID"/>
+      <input type="text" id="updNombre" placeholder="nuevo nombre"/>
+      <button class="btn btn-warn" onclick="actualizarUsuario()">actualizar</button>
     </div>
   </div>
 
-  <!-- ACTUALIZAR -->
-  <div class="card">
-    <div class="card-header">
-      <div class="card-icon pink">✏️</div>
-      <span class="card-title">Actualizar usuario</span>
-    </div>
-    <div class="form-row">
-      <input type="number" id="actualizarId" placeholder="ID..." style="max-width:100px"/>
-      <input type="text" id="actualizarNombre" placeholder="Nuevo nombre..."/>
-      <button class="btn btn-warning" onclick="actualizarUsuario()">Actualizar</button>
+  <hr/>
+
+  <!-- Eliminar -->
+  <div class="section">
+    <div class="section-label">Eliminar</div>
+    <div class="row">
+      <input type="number" id="delId" placeholder="ID"/>
+      <button class="btn btn-danger" onclick="eliminarUsuario()">eliminar</button>
     </div>
   </div>
 
-  <!-- ELIMINAR -->
-  <div class="card">
-    <div class="card-header">
-      <div class="card-icon red">🗑️</div>
-      <span class="card-title">Eliminar usuario</span>
-    </div>
-    <div class="form-row">
-      <input type="number" id="eliminarId" placeholder="ID del usuario..."/>
-      <button class="btn btn-danger" onclick="eliminarUsuario()">Eliminar</button>
-    </div>
-  </div>
 </div>
 
-<!-- Toast -->
 <div id="toast"></div>
 
 <script>
-  const API = '';  // misma URL base (archivo está en /public)
-
-  function toast(msg, type = 'success') {
+  function toast(msg, err = false) {
     const t = document.getElementById('toast');
-    t.className = `show ${type}`;
-    t.innerHTML = `<span>${type === 'success' ? '✅' : '❌'}</span> ${msg}`;
-    clearTimeout(t._timer);
-    t._timer = setTimeout(() => t.classList.remove('show'), 3200);
+    t.textContent = msg;
+    t.className = 'show' + (err ? ' err' : '');
+    clearTimeout(t._t);
+    t._t = setTimeout(() => t.className = '', 2800);
   }
 
   async function leerUsuarios() {
     try {
-      const res = await fetch(`${API}/usuarios`);
-      const data = await res.json();
-      const tbody = document.getElementById('tablaUsuarios');
+      const data = await fetch('/usuarios').then(r => r.json());
+      document.getElementById('statTotal').textContent = data.length;
+      document.getElementById('statApi').textContent = 'online';
+      document.getElementById('statId').textContent = data.length ? Math.max(...data.map(u => u.id)) : '—';
 
-      document.getElementById('totalUsuarios').textContent = data.length;
-      document.getElementById('apiStatus').textContent = '🟢 Online';
-      document.getElementById('lastId').textContent =
-        data.length ? Math.max(...data.map(u => u.id)) : '—';
-
+      const tbody = document.getElementById('tabla');
       if (!data.length) {
-        tbody.innerHTML = `<tr><td colspan="3"><div class="empty-state"><span>👤</span>Sin usuarios aún</div></td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="3"><div class="empty">sin usuarios</div></td></tr>`;
         return;
       }
-
       tbody.innerHTML = data.map(u => `
         <tr>
-          <td><span class="id-badge">#${u.id}</span></td>
+          <td class="id-col">${u.id}</td>
           <td>${u.nombre}</td>
-          <td>
-            <div class="actions">
-              <button class="btn btn-warning btn-sm"
-                onclick="rellenarActualizar(${u.id}, '${u.nombre.replace(/'/g,"\\'")}')">
-                ✏️ Editar
-              </button>
-              <button class="btn btn-danger btn-sm"
-                onclick="rellenarEliminar(${u.id})">
-                🗑️ Borrar
-              </button>
-            </div>
-          </td>
-        </tr>
-      `).join('');
-    } catch (e) {
-      document.getElementById('apiStatus').textContent = '🔴 Error';
-      toast('No se pudo conectar con la API', 'error');
+          <td><div class="act">
+            <button class="btn btn-warn btn-xs" onclick="fill(${u.id},'${u.nombre.replace(/'/g,"\\'")}')">editar</button>
+            <button class="btn btn-danger btn-xs" onclick="fillDel(${u.id})">borrar</button>
+          </div></td>
+        </tr>`).join('');
+    } catch {
+      document.getElementById('statApi').textContent = 'error';
+      toast('No se pudo conectar con la API', true);
     }
   }
 
   async function crearUsuario() {
     const nombre = document.getElementById('crearNombre').value.trim();
-    if (!nombre) return toast('Escribe un nombre', 'error');
-    try {
-      const res = await fetch(`${API}/usuarios`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre })
-      });
-      if (!res.ok) throw new Error();
-      document.getElementById('crearNombre').value = '';
-      toast(`Usuario "${nombre}" creado`);
-      leerUsuarios();
-    } catch { toast('Error al crear usuario', 'error'); }
+    if (!nombre) return toast('Escribe un nombre', true);
+    const res = await fetch('/usuarios', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nombre })
+    });
+    if (!res.ok) return toast('Error al crear', true);
+    document.getElementById('crearNombre').value = '';
+    toast(`"${nombre}" creado`);
+    leerUsuarios();
   }
 
   async function actualizarUsuario() {
-    const id     = document.getElementById('actualizarId').value.trim();
-    const nombre = document.getElementById('actualizarNombre').value.trim();
-    if (!id || !nombre) return toast('Completa ID y nombre', 'error');
-    try {
-      const res = await fetch(`${API}/usuarios/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre })
-      });
-      if (!res.ok) throw new Error();
-      document.getElementById('actualizarId').value = '';
-      document.getElementById('actualizarNombre').value = '';
-      toast(`Usuario #${id} actualizado`);
-      leerUsuarios();
-    } catch { toast('Error al actualizar usuario', 'error'); }
+    const id = document.getElementById('updId').value.trim();
+    const nombre = document.getElementById('updNombre').value.trim();
+    if (!id || !nombre) return toast('Completa ID y nombre', true);
+    const res = await fetch(`/usuarios/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nombre })
+    });
+    if (!res.ok) return toast('Error al actualizar', true);
+    document.getElementById('updId').value = '';
+    document.getElementById('updNombre').value = '';
+    toast(`#${id} actualizado`);
+    leerUsuarios();
   }
 
   async function eliminarUsuario() {
-    const id = document.getElementById('eliminarId').value.trim();
-    if (!id) return toast('Escribe un ID', 'error');
-    try {
-      const res = await fetch(`${API}/usuarios/${id}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error();
-      document.getElementById('eliminarId').value = '';
-      toast(`Usuario #${id} eliminado`);
-      leerUsuarios();
-    } catch { toast('Error al eliminar usuario', 'error'); }
+    const id = document.getElementById('delId').value.trim();
+    if (!id) return toast('Escribe un ID', true);
+    const res = await fetch(`/usuarios/${id}`, { method: 'DELETE' });
+    if (!res.ok) return toast('Error al eliminar', true);
+    document.getElementById('delId').value = '';
+    toast(`#${id} eliminado`);
+    leerUsuarios();
   }
 
-  function rellenarActualizar(id, nombre) {
-    document.getElementById('actualizarId').value = id;
-    document.getElementById('actualizarNombre').value = nombre;
-    document.getElementById('actualizarNombre').focus();
+  function fill(id, nombre) {
+    document.getElementById('updId').value = id;
+    document.getElementById('updNombre').value = nombre;
+    document.getElementById('updNombre').focus();
   }
 
-  function rellenarEliminar(id) {
-    document.getElementById('eliminarId').value = id;
+  function fillDel(id) {
+    document.getElementById('delId').value = id;
+    document.getElementById('delId').focus();
   }
 
-  // Cargar al inicio
   leerUsuarios();
 </script>
 </body>
