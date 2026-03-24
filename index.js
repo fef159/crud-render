@@ -5,18 +5,23 @@ const path = require("path");
 const app = express();
 app.use(express.json());
 
-// 👇 SERVIR HTML
+// 🔥 SERVIR ARCHIVOS HTML
 app.use(express.static(path.join(__dirname, "public")));
+
+// 🔥 FORZAR QUE "/" ABRA index.html
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
 
 const PORT = process.env.PORT || 3000;
 
-// Conexión a PostgreSQL
+// 🔹 CONEXIÓN A POSTGRESQL
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false }
 });
 
-// Crear tabla automáticamente
+// 🔹 CREAR TABLA AUTOMÁTICAMENTE
 pool.query(`
   CREATE TABLE IF NOT EXISTS usuarios (
     id SERIAL PRIMARY KEY,
